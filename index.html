@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard CRUD Data Siswa - EduAdmin Pro</title>
+    <!-- Google Fonts Inter & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --success: #10b981;
+            --bg-body: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Navbar Profesional */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .brand i {
+            font-size: 20px;
+            background: #e0e7ff;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: #e0e7ff;
+            color: var(--primary);
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-badge {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .user-badge b {
+            color: var(--text-main);
+        }
+
+        .btn-logout {
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-logout:hover {
+            background: #fecaca;
+        }
+
+        /* Main Container */
+        .wrapper {
+            max-width: 900px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            display: none;
+        }
+
+        .card.active-section {
+            display: block;
+            animation: slideUp 0.4s ease forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .card-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-header p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            margin-bottom: 25px;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+
+        .input-icon-wrap i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .input-icon-wrap input {
+            padding-left: 42px !important;
+        }
+
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-main);
+            background: #fff;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            outline: none;
+        }
+
+        .options-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            background: #f1f5f9;
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: 1.5px solid transparent;
+            transition: var(--transition);
+        }
+
+        .option-label:hover {
+            background: #e2e8f0;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: var(--primary);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Button Action Area */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 2;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        /* Data Table Styling (CRUD Read, Update, Delete) */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .data-table tr:hover {
+            background: #fafafa;
+        }
+
+        .badge-kelas {
+            background: #e0e7ff;
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .btn-action {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #d97706;
+            margin-right: 5px;
+        }
+
+        .btn-edit:hover {
+            background: #fde68a;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .btn-delete:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar Profesional dengan Tab Navigasi -->
+<header>
+    <div class="brand">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>EduAdmin Pro</span>
+    </div>
+    <div class="nav-menu">
+        <button class="nav-link active" onclick="switchTab('input', this)">
+            <i class="fa-solid fa-user-plus"></i> Tambah Data
+        </button>
+        <button class="nav-link" onclick="switchTab('list', this)">
+            <i class="fa-solid fa-database"></i> Lihat Data Siswa (<span id="counterData">0</span>)
+        </button>
+    </div>
+    <div class="user-panel">
+        <span class="user-badge">Halo, <b id="adminName">Administrator</b></span>
+        <button onclick="logout()" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+    </div>
+</header>
+
+<!-- Main Wrapper -->
+<div class="wrapper">
+    
+    <!-- SECTION 1: FORM INPUT & EDIT (CREATE / UPDATE) -->
+    <div id="section-input" class="card active-section">
+        <div class="card-header">
+            <h2 id="formTitle">Form Input Data Siswa</h2>
+            <p id="formSubtitle">Silakan lengkapi formulir di bawah ini dengan data akademik yang valid.</p>
+        </div>
+
+        <form id="siswaForm" onsubmit="saveData(event)" class="form-grid">
+            <input type="hidden" id="editIndex" value="">
+            
+            <div class="form-group">
+                <label for="nama">Nama Lengkap</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nis">NIS (Nomor Induk Siswa)</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="nis" placeholder="Contoh: 20261024" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="kelas">Kelas</label>
+                <div class="input-icon-wrap">
+                    <i class="fa-solid fa-school" style="z-index: 10;"></i>
+                    <select id="kelas" required style="padding-left: 42px;">
+                        <option value="">-- Pilih Kelas --</option>
+                        <option value="XII RPL 1">XII RPL 1</option>
+                        <option value="XII RPL 2">XII RPL 2</option>
+                        <option value="XI RPL 1">XI RPL 1</option>
+                        <option value="XI RPL 2">XI RPL 2</option>
+                        <option value="X RPL">X RPL</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Jenis Kelamin</label>
+                <div class="options-grid">
+                    <label class="option-label">
+                        <input type="radio" name="jenis_kelamin" value="Laki-laki" required> Laki-laki
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="jenis_kelamin" value="Perempuan"> Perempuan
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Hobi / Minat</label>
+                <div class="options-grid">
+                    <label class="option-label">
+                        <input type="checkbox" name="hobi" value="Membaca"> Membaca
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" name="hobi" value="Olahraga"> Olahraga
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" name="hobi" value="Coding"> Coding
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" name="hobi" value="Seni/Musik"> Seni/Musik
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="alamat">Alamat Lengkap</label>
+                <textarea id="alamat" rows="3" placeholder="Masukkan alamat domisili lengkap siswa" required style="padding: 12px 16px;"></textarea>
+            </div>
+
+            <div class="action-buttons">
+                <button type="submit" id="btnSubmitText" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Simpan Data Siswa
+                </button>
+                <button type="button" onclick="resetFormState()" class="btn btn-secondary">
+                    <i class="fa-solid fa-rotate-right"></i> Reset / Batal
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SECTION 2: TABEL LIHAT DATA & CRUD (READ, UPDATE, DELETE) -->
+    <div id="section-list" class="card">
+        <div class="card-header">
+            <h2>Database Data Siswa</h2>
+            <p>Daftar lengkap seluruh siswa yang telah tersimpan dalam sistem.</p>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama & NIS</th>
+                        <th>Kelas</th>
+                        <th>Gender</th>
+                        <th>Hobi</th>
+                        <th>Alamat</th>
+                        <th style="text-align: center;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data akan dimuat secara dinamis via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- JavaScript Logika Navbar & CRUD Lengkap -->
+<script>
+    // Inisialisasi Nama Admin
+    if (!sessionStorage.getItem("adminUser")) {
+        sessionStorage.setItem("adminUser", "Administrator Utama");
+    }
+    document.getElementById('adminName').innerText = sessionStorage.getItem("adminUser");
+
+    // Ambil data dari localStorage atau buat array kosong
+    let siswaData = JSON.parse(localStorage.getItem("siswaDataStore")) || [];
+    updateCounter();
+
+    // Fungsi Navigasi Tab Navbar
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active-section'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+        if (tabId === 'input') {
+            document.getElementById('section-input').classList.add('active-section');
+        } else if (tabId === 'list') {
+            document.getElementById('section-list').classList.add('active-section');
+            renderTable();
+        }
+        element.classList.add('active');
+    }
+
+    // CREATE & UPDATE (Simpan / Perbarui Data)
+    function saveData(event) {
+        event.preventDefault();
+
+        const editIndex = document.getElementById('editIndex').value;
+        const nama = document.getElementById('nama').value;
+        const nis = document.getElementById('nis').value;
+        const kelas = document.getElementById('kelas').value;
+        const gender = document.querySelector('input[name="jenis_kelamin"]:checked').value;
+        const alamat = document.getElementById('alamat').value;
+
+        // Ambil checkbox hobi
+        let hobiArr = [];
+        document.querySelectorAll('input[name="hobi"]:checked').forEach(el => hobiArr.push(el.value));
+        const hobiStr = hobiArr.length > 0 ? hobiArr.join(", ") : "Tidak ada";
+
+        const newData = { nama, nis, kelas, gender, hobi: hobiStr, alamat };
+
+        if (editIndex === "") {
+            // Create data baru
+            siswaData.push(newData);
+            alert("Data siswa berhasil ditambahkan!");
+        } else {
+            // Update data yang ada
+            siswaData[editIndex] = newData;
+            alert("Data siswa berhasil diperbarui!");
+            resetFormState();
+        }
+
+        localStorage.setItem("siswaDataStore", JSON.stringify(siswaData));
+        document.getElementById('siswaForm').reset();
+        updateCounter();
+
+        // Pindah otomatis ke tab lihat data
+        document.querySelectorAll('.nav-link')[1].click();
+    }
+
+    // READ (Tampilkan Data ke Tabel)
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = "";
+
+        if (siswaData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">Belum ada data siswa yang ditambahkan.</td></tr>`;
+            return;
+        }
+
+        siswaData.forEach((item, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><b>${item.nama}</b><br><small style="color:var(--text-muted);">${item.nis}</small></td>
+                    <td><span class="badge-kelas">${item.kelas}</span></td>
+                    <td>${item.gender}</td>
+                    <td>${item.hobi}</td>
+                    <td>${item.alamat}</td>
+                    <td style="text-align: center; white-space: nowrap;">
+                        <button class="btn-action btn-edit" onclick="editData(${index})">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteData(${index})">
+                            <i class="fa-solid fa-trash"></i> Hapus
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // UPDATE (Muat Data ke Form untuk Diedit)
+    function editData(index) {
+        const item = siswaData[index];
+        
+        document.getElementById('editIndex').value = index;
+        document.getElementById('nama').value = item.nama;
+        document.getElementById('nis').value = item.nis;
+        document.getElementById('kelas').value = item.kelas;
+        
+        document.querySelectorAll('input[name="jenis_kelamin"]').forEach(radio => {
+            if (radio.value === item.gender) radio.checked = true;
+        });
+
+        document.querySelectorAll('input[name="hobi"]').forEach(chk => {
+            chk.checked = item.hobi.includes(chk.value);
+        });
+
+        document.getElementById('alamat').value = item.alamat;
+
+        // Ubah tampilan teks header form
+        document.getElementById('formTitle').innerText = "Edit Data Siswa";
+        document.getElementById('formSubtitle').innerText = "Perbarui informasi data siswa di bawah ini.";
+        document.getElementById('btnSubmitText').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Perbarui Data`;
+
+        // Pindah ke tab input
+        document.querySelectorAll('.nav-link')[0].click();
+    }
+
+    // DELETE (Hapus Data)
+    function deleteData(index) {
+        if (confirm("Apakah Anda yakin ingin menghapus data siswa ini?")) {
+            siswaData.splice(index, 1);
+            localStorage.setItem("siswaDataStore", JSON.stringify(siswaData));
+            updateCounter();
+            renderTable();
+        }
+    }
+
+    // Reset Form State kembali ke mode tambah baru
+    function resetFormState() {
+        document.getElementById('siswaForm').reset();
+        document.getElementById('editIndex').value = "";
+        document.getElementById('formTitle').innerText = "Form Input Data Siswa";
+        document.getElementById('formSubtitle').innerText = "Silakan lengkapi formulir di bawah ini dengan data akademik yang valid.";
+        document.getElementById('btnSubmitText').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Data Siswa`;
+    }
+
+    function updateCounter() {
+        document.getElementById('counterData').innerText = siswaData.length;
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        alert("Anda telah keluar dari sesi admin.");
+        window.location.reload();
+    }
+</script>
+
+</body>
+</html>
